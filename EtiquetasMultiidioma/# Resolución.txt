@@ -1,0 +1,7 @@
+* Recarga
+Se crean dos vistas:
+- Recarga.JS.jsp : usa sólo JavaScript
+- Recarga.jQ.jsp : usa jQuery
+
+  Se puede seleccionar una u otra sin modificar el fuente, editando el archivo
+de propiedades, config.properties, ubicado en /WEB-INF/propiedades
