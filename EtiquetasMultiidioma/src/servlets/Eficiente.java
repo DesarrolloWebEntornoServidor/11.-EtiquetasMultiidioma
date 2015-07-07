@@ -1,8 +1,10 @@
 package servlets;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -24,6 +26,12 @@ public class Eficiente extends HttpServlet {
 	private static String[] palabrasPorDefecto;
 	private static Map<String,String[]> arrayTraducciones;
 	private static Map<String,String> arrayImagenesBanderas;
+	
+	private String vistaDestino;
+	private final static String RUTA_ARCHIVO_PROPIEDADES = "/WEB-INF/propiedades/";
+	private final static String NOMBRE_ARCHIVO_PROPIEDADES = "config.properties";
+	private final static String VISTA_POR_DEFECTO = "/Eficiente.jQ.jsp";
+	private static final String VISTA_DESTINO = "vista_destino_eficiente";
 	
 	static  // inicialización de variables (atributos) de clase
     {
@@ -48,6 +56,21 @@ public class Eficiente extends HttpServlet {
 		String[] palabras = palabrasPorDefecto;
 		
 		// geberación de datos.js
+		crearArchivo();
+		
+		request.setAttribute("idioma", idioma);
+		request.setAttribute("palabras", palabras);
+		request.setAttribute("arrayImagenesBanderas", arrayImagenesBanderas);
+		
+		// se define la vista destino a usar en un archivo externo de propiedades
+		cargarArchivoPropiedades();
+		
+		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(vistaDestino);
+		dispatcher.forward(request,response);
+	}
+
+	private void crearArchivo() throws IOException, FileNotFoundException,
+			UnsupportedEncodingException {
 		// URL url = Thread.currentThread().getContextClassLoader().getResource("com/youpackage/");
 		String ruta = getServletContext().getRealPath("/js");
 		// System.out.println(ruta);
@@ -78,25 +101,20 @@ public class Eficiente extends HttpServlet {
 			 	}
 			}
 		}
-		
-		request.setAttribute("idioma", idioma);
-		request.setAttribute("palabras", palabras);
-		request.setAttribute("arrayImagenesBanderas", arrayImagenesBanderas);
-		
-		// se define la vista destino a usar en un archivo externo de propiedades
-		String vistaDestino = "/Eficiente.jQ.jsp";
+	}
+
+	private String cargarArchivoPropiedades() throws IOException {
+		vistaDestino = VISTA_POR_DEFECTO ;
 		Properties propiedades = new Properties();
-		String rutaArchivoPropiedades = "/WEB-INF/propiedades/";
-		String nombreArchivoPropiedades = "config.properties";
+		
 		try {
-			propiedades.load(getServletContext().getResourceAsStream(rutaArchivoPropiedades + nombreArchivoPropiedades));
-			vistaDestino = propiedades.getProperty("vista_destino_eficiente");
+			propiedades.load(getServletContext().getResourceAsStream(RUTA_ARCHIVO_PROPIEDADES + NOMBRE_ARCHIVO_PROPIEDADES));
+			vistaDestino = propiedades.getProperty(VISTA_DESTINO);
 		} catch (NullPointerException npE) {
 			System.out.println("NO SE ACCEDE AL ARCHIVO DE PROPIEDADES" + " <br />");
 			npE.printStackTrace();
 		}
-		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(vistaDestino);
-		dispatcher.forward(request,response);
+		return vistaDestino;
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

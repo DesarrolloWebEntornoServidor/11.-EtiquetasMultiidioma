@@ -10,7 +10,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Etiquetas multiidioma - Recarga</title>
+	<title>Etiquetas multiidioma - Recarga JS</title>
     <script type="text/javascript">
 
     </script>

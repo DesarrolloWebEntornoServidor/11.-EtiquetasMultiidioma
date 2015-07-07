@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet("/Recarga")
 public class Recarga extends HttpServlet {
+	
+
 	private static final long serialVersionUID = 1L;
 
 	// valores por defecto, para la primera carga, de las etiquetas en castellano
@@ -21,6 +23,13 @@ public class Recarga extends HttpServlet {
 	private static String[] palabrasPorDefecto;
 	private static Map<String,String[]> arrayTraducciones;
 	private static Map<String,String> arrayImagenesBanderas;
+	
+	private String vistaDestino;
+	private final static String RUTA_ARCHIVO_PROPIEDADES = "/WEB-INF/propiedades/";
+	private final static String NOMBRE_ARCHIVO_PROPIEDADES = "config.properties";
+	private final static String VISTA_POR_DEFECTO = "/Recarga.jQ.jsp";
+	private static final String VISTA_DESTINO = "vista_destino_recarga";
+
 	static
     {
 		idiomaPorDefecto = "ES";
@@ -53,19 +62,26 @@ public class Recarga extends HttpServlet {
 		request.setAttribute("arrayImagenesBanderas", arrayImagenesBanderas);
 		
 		// se define la vista destino a usar en un archivo externo de propiedades
-		String vistaDestino = "/Recarga.jQ.jsp";
+		 cargarArchivoPropiedades();
+		
+		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(vistaDestino);
+		dispatcher.forward(request,response);
+	}
+
+	private void cargarArchivoPropiedades() {
+		vistaDestino = VISTA_POR_DEFECTO ;
 		Properties propiedades = new Properties();
-		String rutaArchivoPropiedades = "/WEB-INF/propiedades/";
-		String nombreArchivoPropiedades = "config.properties";
+
 		try {
-			propiedades.load(getServletContext().getResourceAsStream(rutaArchivoPropiedades + nombreArchivoPropiedades));
-			vistaDestino = propiedades.getProperty("vista_destino_recarga");
+			propiedades.load(getServletContext().getResourceAsStream(RUTA_ARCHIVO_PROPIEDADES + NOMBRE_ARCHIVO_PROPIEDADES));
+			vistaDestino = propiedades.getProperty(VISTA_DESTINO);
 		} catch (NullPointerException npE) {
 			System.out.println("NO SE ACCEDE AL ARCHIVO DE PROPIEDADES" + " <br />");
 			npE.printStackTrace();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
 		}
-		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(vistaDestino);
-		dispatcher.forward(request,response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
